@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to Revit (dynamic picker, up-to-date)",
+            "type": "coreclr",
+            "request": "attach",
+            "justMyCode": false,
+            "requireExactSource": false,
+            "symbolOptions": {
+                "searchPaths": ["${workspaceFolder}/bin/Debug"],
+                "searchMicrosoftSymbolServer": false,
+                "searchNuGetOrgSymbolServer": false
+            },
+            "preLaunchTask": "build"
+        }
+    ],
+    "compounds": []
+}

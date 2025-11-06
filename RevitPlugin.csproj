@@ -1,0 +1,71 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Platforms>x64</Platforms>
+    <OutputType>Library</OutputType>
+    <RootNamespace>RevitPlugin</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <!-- <StartWorkingDirectory>C:\Users\martinjoa\source\test\</StartWorkingDirectory>-->
+    <!-- Edit this path to match your Revit executable path -->
+    <RevitPath>C:\Program Files\Autodesk\Revit 2025</RevitPath>
+    <!-- Edit this path to match your Revit Addins path -->
+    <RevitAddinsPath>C:\ProgramData\Autodesk\Revit\Addins\2025</RevitAddinsPath>
+    <AssemblySearchPaths>$(RevitPath);$(AssemblySearchPaths)</AssemblySearchPaths>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <OutputPath>$(MSBuildProjectDirectory)\bin\Debug\</OutputPath>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <PreBuildEvent>powershell -NoProfile -ExecutionPolicy Bypass -File "$(MSBuildProjectDirectory)\UpdateAddinPath.ps1" -AddinFile "$(MSBuildProjectDirectory)\GeometryCheckDebug.addin" -AssemblyPath "$(OutputPath)RevitPlugin.dll"</PreBuildEvent>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>$(MSBuildProjectDirectory)\bin\Release\</OutputPath>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+  </PropertyGroup>
+  
+  <ItemGroup Condition=" '$(UsingMicrosoftNETSdk)' == 'true' or '$(CLRSupport)' == 'NetCore' ">
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <!-- Revit Core References -->
+    <Reference Include="RevitAPI">
+      <HintPath>$(RevitPath)\RevitAPI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DesignAutomationBridge">
+      <HintPath>$(RevitAddinsPath)\DesignAutomationBridge.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <!-- Revit API UI References (not available for Automation workflows) -->
+    <!--
+    <Reference Include="RevitAPIUI">
+      <HintPath>$(RevitPath)\RevitAPIUI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    -->
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+  
+  <Target Name="CopyGeometryCheckAddin" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
+    <ItemGroup>
+      <AddinDestinationFile Include="$(RevitAddinsPath)\GeometryCheckDebug.addin" />
+    </ItemGroup>
+    <Exec Command="@(AddinDestinationFile->'if not exist &quot;%(FullPath)&quot; copy &quot;GeometryCheckDebug.addin&quot; &quot;%(FullPath)&quot;')" />
+  </Target>
+
+</Project>
